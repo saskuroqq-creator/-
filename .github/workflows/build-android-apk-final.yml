@@ -90,7 +90,7 @@ jobs:
           cp "$APK" release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk
           sha256sum release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk > release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk.sha256
           ls -lh release/*
-          file release/AnimaSurvivorsReborn-PixelPortrait-v1.1-debug.apk
+          file release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk
 
       - uses: actions/upload-artifact@v4
         with:
