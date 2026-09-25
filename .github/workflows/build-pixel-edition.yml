@@ -59,14 +59,14 @@ jobs:
           mkdir -p release
           APK="$(find buildsrc -type f -name '*.apk' | head -n 1)"
           test -n "$APK"
-          cp "$APK" release/AnimaSurvivorsReborn-PixelEdition-v1.0-debug.apk
-          sha256sum release/AnimaSurvivorsReborn-PixelEdition-v1.0-debug.apk > release/AnimaSurvivorsReborn-PixelEdition-v1.0-debug.apk.sha256
-          (cd buildsrc/Anima_Survivors_Reborn_v0.8.1_ANDROID_READY && zip -q -r "../../release/AnimaSurvivorsReborn-PixelEdition-v1.0-source.zip" .)
+          cp "$APK" release/AnimaSurvivorsReborn-PixelEdition-v1.1-debug.apk
+          sha256sum release/AnimaSurvivorsReborn-PixelEdition-v1.1-debug.apk > release/AnimaSurvivorsReborn-PixelEdition-v1.1-debug.apk.sha256
+          (cd buildsrc/Anima_Survivors_Reborn_v0.8.1_ANDROID_READY && zip -q -r "../../release/AnimaSurvivorsReborn-PixelEdition-v1.1-source.zip" .)
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: AnimaSurvivorsReborn-PixelEdition-v1.0
+          name: AnimaSurvivorsReborn-PixelEdition-v1.1
           path: release/
           if-no-files-found: error
           retention-days: 30
