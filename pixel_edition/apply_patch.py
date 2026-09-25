@@ -97,3 +97,93 @@ CHANGES
 NOTE
 Runtime/device QA requires an exported APK on a real Android device.
 ''')
+
+
+# Samsung Galaxy A57 5G target profile.
+# Native landscape is 2340x1080 (19.5:9), so 1170x540 is an exact 2x logical canvas.
+proj = root / "project.godot"
+p = proj.read_text()
+p = p.replace("window/size/viewport_width=960", "window/size/viewport_width=1170")
+p = p.replace("window/size/viewport_height=540", "window/size/viewport_height=540")
+p = p.replace("window/size/window_width_override=1280", "window/size/window_width_override=1560")
+p = p.replace("window/size/window_height_override=720", "window/size/window_height_override=720")
+p = p.replace('config/name="Anima Survivors: Reborn — Top Down"', 'config/name="Anima Survivors: Reborn — Galaxy A57"')
+proj.write_text(p)
+
+# Rebuild the main menu as a landscape two-column layout.
+main = root / "scripts/main.gd"
+s = main.read_text()
+start = s.index("func _show_main_menu()->void:")
+end = s.index("\nfunc _refresh_selection()->void:", start)
+menu = '''func _show_main_menu()->void:
+    running=false
+    _build_menu_showcase()
+    for c in ui.get_children():
+        if c is MarginContainer:
+            c.visible=false
+    main_overlay=ColorRect.new(); main_overlay.color=Color(.015,.025,.045,.58); main_overlay.set_anchors_preset(Control.PRESET_FULL_RECT); ui.add_child(main_overlay)
+    var center:=CenterContainer.new(); center.set_anchors_preset(Control.PRESET_FULL_RECT); center.offset_left=24; center.offset_right=-24; center.offset_top=18; center.offset_bottom=-18; main_overlay.add_child(center)
+    var panel:=PanelContainer.new(); panel.add_theme_stylebox_override("panel",_panel()); panel.custom_minimum_size=Vector2(900,488); panel.size_flags_horizontal=Control.SIZE_SHRINK_CENTER; panel.size_flags_vertical=Control.SIZE_SHRINK_CENTER; center.add_child(panel)
+    var columns:=HBoxContainer.new(); columns.add_theme_constant_override("separation",28); panel.add_child(columns)
+
+    var left:=VBoxContainer.new(); left.custom_minimum_size=Vector2(430,0); left.add_theme_constant_override("separation",9); columns.add_child(left)
+    var logo:=Label.new(); logo.text="ANIMA\nSURVIVORS"; logo.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; logo.add_theme_font_size_override("font_size",40); logo.modulate=Color(1,.55,.78); left.add_child(logo)
+    var sub:=Label.new(); sub.text="REBORN · TOP-DOWN SURVIVAL"; sub.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; sub.modulate=Color(.55,.92,1); sub.add_theme_font_size_override("font_size",15); left.add_child(sub)
+    left.add_child(HSeparator.new())
+    selected_hero_label=Label.new(); selected_hero_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; selected_hero_label.add_theme_font_size_override("font_size",20); left.add_child(selected_hero_label)
+    var hr:=HBoxContainer.new(); hr.alignment=BoxContainer.ALIGNMENT_CENTER; hr.add_theme_constant_override("separation",10); left.add_child(hr)
+    var hp=_button("◀ ГЕРОЙ"); hp.custom_minimum_size=Vector2(190,46); hr.add_child(hp); hp.pressed.connect(func(): hero_index=(hero_index-1+hero_ids.size())%hero_ids.size(); _refresh_selection())
+    var hn=_button("ГЕРОЙ ▶"); hn.custom_minimum_size=Vector2(190,46); hr.add_child(hn); hn.pressed.connect(func(): hero_index=(hero_index+1)%hero_ids.size(); _refresh_selection())
+    selected_map_label=Label.new(); selected_map_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; selected_map_label.add_theme_font_size_override("font_size",19); left.add_child(selected_map_label)
+    var mr:=HBoxContainer.new(); mr.alignment=BoxContainer.ALIGNMENT_CENTER; mr.add_theme_constant_override("separation",10); left.add_child(mr)
+    var mp=_button("◀ КАРТА"); mp.custom_minimum_size=Vector2(190,46); mr.add_child(mp); mp.pressed.connect(func(): map_index=(map_index-1+map_ids.size())%map_ids.size(); _refresh_selection())
+    var mn=_button("КАРТА ▶"); mn.custom_minimum_size=Vector2(190,46); mr.add_child(mn); mn.pressed.connect(func(): map_index=(map_index+1)%map_ids.size(); _refresh_selection())
+
+    var right:=VBoxContainer.new(); right.custom_minimum_size=Vector2(390,0); right.add_theme_constant_override("separation",9); columns.add_child(right)
+    var mode_title:=Label.new(); mode_title.text="РЕЖИМ И ЗАПУСК"; mode_title.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; mode_title.add_theme_font_size_override("font_size",20); mode_title.modulate=Color(.55,.92,1); right.add_child(mode_title)
+    mode_label=Label.new(); mode_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; mode_label.add_theme_font_size_override("font_size",17); right.add_child(mode_label)
+    var mode_btn=_button("СМЕНИТЬ РЕЖИМ"); mode_btn.custom_minimum_size=Vector2(360,44); right.add_child(mode_btn); mode_btn.pressed.connect(func(): game_mode="waves" if game_mode=="arcade" else "arcade"; _refresh_selection())
+    meta_label=Label.new(); meta_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; meta_label.modulate=Color(1,.82,.35); right.add_child(meta_label)
+    var shrine=_button("СВЯТИЛИЩЕ · УЛУЧШЕНИЯ"); shrine.custom_minimum_size=Vector2(360,44); right.add_child(shrine); shrine.pressed.connect(_show_meta)
+    var start_btn:=_button("ВОЙТИ В РАЗЛОМ"); start_btn.custom_minimum_size=Vector2(360,56); start_btn.add_theme_font_size_override("font_size",20); right.add_child(start_btn); start_btn.pressed.connect(start_run)
+    var hint:=Label.new(); hint.text="ANDROID · ЛЕВЫЙ СТИК · DASH · ANIMA\nLANDSCAPE · 2340×1080 · 120 Hz"; hint.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER; hint.modulate=Color(.72,.78,.86); hint.add_theme_font_size_override("font_size",13); right.add_child(hint)
+    _refresh_selection()
+'''
+s=s[:start]+menu+s[end:]
+s=s.replace('panel.custom_minimum_size=Vector2(_ui_width(600,326),_ui_width(430,560))','panel.custom_minimum_size=Vector2(650,430)')
+s=s.replace('b.custom_minimum_size=Vector2(_ui_width(520,300),72)','b.custom_minimum_size=Vector2(600,68)')
+s=s.replace('hud.add_theme_constant_override("margin_top",18)','hud.add_theme_constant_override("margin_top",16)')
+s=s.replace('hud.add_theme_constant_override("margin_left",24); hud.add_theme_constant_override("margin_right",24)','hud.add_theme_constant_override("margin_left",28); hud.add_theme_constant_override("margin_right",28)')
+main.write_text(s)
+
+mobile = root / "scripts/mobile_controls.gd"
+m = mobile.read_text()
+m = m.replace('radius := 58.0','radius := 66.0')
+m = m.replace('center=Vector2(88,size.y-88)','center=Vector2(98,size.y-98)')
+m = m.replace('dash_rect=Rect2(size.x-138,size.y-138,104,104)','dash_rect=Rect2(size.x-136,size.y-136,110,110)')
+m = m.replace('skill_rect=Rect2(size.x-258,size.y-122,94,94)','skill_rect=Rect2(size.x-270,size.y-128,104,104)')
+m = m.replace('pause_rect=Rect2(size.x-70,18,50,50)','pause_rect=Rect2(size.x-74,18,54,54)')
+mobile.write_text(m)
+
+(root/'QA_REPORT_GALAXY_A57_LANDSCAPE_v1.3.txt').write_text('''ANIMA SURVIVORS: REBORN — GALAXY A57 LANDSCAPE v1.3
+========================================================
+TARGET
+- Samsung Galaxy A57 5G landscape.
+- Native display: 2340x1080, 19.5:9, Super AMOLED+.
+- Logical game canvas: 1170x540 (exact 2x scale to native resolution).
+
+UI
+- Main menu rebuilt as a two-column landscape layout.
+- Menu panel, buttons, text and touch targets fit inside the 540 logical-pixel height.
+- Secondary upgrade/level overlays use landscape-safe dimensions.
+- HUD margins and mobile controls adjusted for the short/wide screen.
+
+GRAPHICS
+- Clean 3D rendering; old pixel post-process remains disabled.
+- Orthographic top-down combat camera.
+- Android particle/decoration density kept controlled for a cleaner battlefield.
+
+DEVICE NOTE
+- The A57 has a 1080x2340 portrait panel; landscape is 2340x1080.
+- Exact device appearance can still vary slightly with system navigation/cutout settings.
+''')
