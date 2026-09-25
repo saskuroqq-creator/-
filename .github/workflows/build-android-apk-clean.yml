@@ -26,8 +26,12 @@ jobs:
           set -e
           mkdir -p project
           unzip -q "$ARCHIVE" -d project
-          PROJECT_DIR="$(find project -name project.godot -type f -print -quit | xargs -r dirname)"
-          test -n "$PROJECT_DIR"
+          BASE_DIR="$(find project -name project.godot -type f -print -quit | xargs -r dirname)"
+          test -n "$BASE_DIR"
+          mkdir -p buildsrc
+          cp -a "$BASE_DIR" buildsrc/Anima_Survivors_Reborn_v0.8.1_ANDROID_READY
+          python3 pixel_edition/apply_patch.py
+          PROJECT_DIR="buildsrc/Anima_Survivors_Reborn_v0.8.1_ANDROID_READY"
           find "$PROJECT_DIR/scripts" -type f -name '*.gd' -exec sed -i 's/:=/=/g' {} +
           printf '\n[preset.0.options]\ncustom_template/debug=""\ncustom_template/release=""\n' >> "$PROJECT_DIR/export_presets.cfg"
           if grep -q '^\[rendering\]$' "$PROJECT_DIR/project.godot"; then
@@ -77,13 +81,13 @@ jobs:
           mkdir -p release
           APK="$(find . -type f -name '*.apk' | head -n 1)"
           test -n "$APK"
-          cp "$APK" release/AnimaSurvivorsReborn-v0.8.1-debug.apk
-          sha256sum release/AnimaSurvivorsReborn-v0.8.1-debug.apk > release/AnimaSurvivorsReborn-v0.8.1-debug.apk.sha256
+          cp "$APK" release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk
+          sha256sum release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk > release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk.sha256
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: AnimaSurvivorsReborn-Android-v0.8.1
+          name: AnimaSurvivorsReborn-TopDown-Landscape-v1.2
           path: release/*
           if-no-files-found: error
           retention-days: 30
