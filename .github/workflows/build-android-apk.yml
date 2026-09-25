@@ -234,3 +234,5 @@ jobs:
           path: release/*
           if-no-files-found: error
           retention-days: 30
+
+# trigger build
