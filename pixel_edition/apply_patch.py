@@ -2,109 +2,98 @@ from pathlib import Path
 
 root = Path("buildsrc/Anima_Survivors_Reborn_v0.8.1_ANDROID_READY")
 
-# --- Project / Android portrait ---
+# Landscape 16:9, clean 3D presentation. No full-screen pixel/post quantization.
 proj = root / "project.godot"
 p = proj.read_text()
-p = p.replace('window/size/viewport_width=1280', 'window/size/viewport_width=360')
-p = p.replace('window/size/viewport_height=720', 'window/size/viewport_height=640')
-p = p.replace('window/size/window_width_override=1280', 'window/size/window_width_override=720')
-p = p.replace('window/size/window_height_override=720', 'window/size/window_height_override=1280')
-p = p.replace('window/stretch/mode="canvas_items"', 'window/stretch/mode="canvas_items"\nwindow/stretch/aspect="keep"')
-p = p.replace('textures/default_filters/use_nearest_mipmap_filter=false', 'textures/default_filters/use_nearest_mipmap_filter=true\ntextures/canvas_textures/default_texture_filter=0')
-p = p.replace('config/name="Anima Survivors: Reborn — Asset Fusion"', 'config/name="Anima Survivors: Reborn — Pixel Edition"')
-if 'window/handheld/orientation=1' not in p:
-    p = p.replace('window/stretch/aspect="keep"', 'window/stretch/aspect="keep"\nwindow/handheld/orientation=1')
-if 'window/frame_pacing/android/enable_frame_pacing=true' not in p:
-    p = p.replace('window/handheld/orientation=1', 'window/handheld/orientation=1\nwindow/frame_pacing/android/enable_frame_pacing=true\nwindow/frame_pacing/android/swappy_mode=2\nwindow/energy_saving/keep_screen_on=true')
+repls = {
+    "window/size/viewport_width=1280": "window/size/viewport_width=960",
+    "window/size/viewport_height=720": "window/size/viewport_height=540",
+    "window/size/window_width_override=1280": "window/size/window_width_override=1280",
+    "window/size/window_height_override=720": "window/size/window_height_override=720",
+    "window/handheld/orientation=1": "window/handheld/orientation=0",
+    "config/name=\"Anima Survivors: Reborn — Asset Fusion\"": "config/name=\"Anima Survivors: Reborn — Top Down\"",
+    "textures/default_filters/use_nearest_mipmap_filter=true": "textures/default_filters/use_nearest_mipmap_filter=false",
+    "textures/canvas_textures/default_texture_filter=0": "textures/canvas_textures/default_texture_filter=1",
+}
+for a,b in repls.items(): p=p.replace(a,b)
+if "window/handheld/orientation=" not in p:
+    p=p.replace('window/stretch/aspect="keep"','window/stretch/aspect="keep"\nwindow/handheld/orientation=0')
 if 'config/icon="res://icon.svg"' not in p:
-    p = p.replace('run/main_scene="res://scenes/main.tscn"', 'run/main_scene="res://scenes/main.tscn"\nconfig/icon="res://icon.svg"')
+    p=p.replace('run/main_scene="res://scenes/main.tscn"','run/main_scene="res://scenes/main.tscn"\nconfig/icon="res://icon.svg"')
 proj.write_text(p)
 
-# --- Main UI / pixel presentation ---
-main = root / "scripts/main.gd"
+# Main UI: landscape-safe panels, remove muddy full-screen pixel filter.
+main = root/"scripts/main.gd"
 s = main.read_text()
-if 'func _portrait_ui() -> bool:' not in s:
-    s = s.replace('func _ready()->void:\n', 'func _portrait_ui() -> bool:\n    return get_viewport().get_visible_rect().size.y > get_viewport().get_visible_rect().size.x\n\nfunc _ui_width(wide: float, portrait: float) -> float:\n    return portrait if _portrait_ui() else wide\n\nfunc _ready()->void:\n')
-s = s.replace('sub.text="REBORN · HUMANFORM · 3D ACTION SURVIVOR"', 'sub.text="REBORN · PIXEL EDITION · SURVIVAL ACTION"')
-s = s.replace('hint.text="WASD / стрелки — движение · SPACE — рывок · Q — ANIMA BURST\\nНа телефоне управление появляется автоматически"', 'hint.text="WASD / СТРЕЛКИ — ДВИЖЕНИЕ · SPACE — РЫВОК · Q — ANIMA BURST\\nANDROID: ВИРТУАЛЬНЫЕ СТИКИ И КНОПКИ"')
-s = s.replace('panel.custom_minimum_size=Vector2(580,610)', 'panel.custom_minimum_size=Vector2(_ui_width(580,326),_ui_width(610,560))')
-s = s.replace('logo.add_theme_font_size_override("font_size",46)', 'logo.add_theme_font_size_override("font_size",_ui_width(46,34))')
-s = s.replace('sub.add_theme_font_size_override("font_size",16)', 'sub.add_theme_font_size_override("font_size",_ui_width(16,11))')
-s = s.replace('hp.custom_minimum_size=Vector2(150,45)', 'hp.custom_minimum_size=Vector2(_ui_width(150,125),45)')
-s = s.replace('hn.custom_minimum_size=Vector2(150,45)', 'hn.custom_minimum_size=Vector2(_ui_width(150,125),45)')
-s = s.replace('mp.custom_minimum_size=Vector2(150,45)', 'mp.custom_minimum_size=Vector2(_ui_width(150,125),45)')
-s = s.replace('mn.custom_minimum_size=Vector2(150,45)', 'mn.custom_minimum_size=Vector2(_ui_width(150,125),45)')
-s = s.replace('mode_btn.custom_minimum_size=Vector2(300,42)', 'mode_btn.custom_minimum_size=Vector2(_ui_width(300,280),42)')
-s = s.replace('shrine.custom_minimum_size=Vector2(420,44)', 'shrine.custom_minimum_size=Vector2(_ui_width(420,280),44)')
-s = s.replace('l.position=Vector2(-250,120); l.size=Vector2(500,50)', 'l.position=Vector2(-_ui_width(250,160),120); l.size=Vector2(_ui_width(500,320),50)')
-# constrain the two full-screen modal panels in portrait
-s = s.replace('panel.add_theme_stylebox_override("panel",_panel()); center.add_child(panel)\n    var vb:=VBoxContainer.new(); vb.add_theme_constant_override("separation",10); panel.add_child(vb)',
-              'panel.add_theme_stylebox_override("panel",_panel()); panel.custom_minimum_size=Vector2(_ui_width(520,326),_ui_width(420,560)); center.add_child(panel)\n    var vb:=VBoxContainer.new(); vb.add_theme_constant_override("separation",8); panel.add_child(vb)')
-s = s.replace('b.custom_minimum_size=Vector2(520,72)', 'b.custom_minimum_size=Vector2(_ui_width(520,300),72)')
+s = s.replace("REBORN · PIXEL EDITION · SURVIVAL ACTION","REBORN · TOP-DOWN SURVIVAL ACTION")
+s = s.replace('    _install_pixel_filter()\n','')
+s = s.replace('panel.custom_minimum_size=Vector2(_ui_width(580,326),_ui_width(610,560))','panel.custom_minimum_size=Vector2(_ui_width(600,326),_ui_width(500,560))')
+s = s.replace('panel.custom_minimum_size=Vector2(_ui_width(520,326),_ui_width(420,560))','panel.custom_minimum_size=Vector2(_ui_width(600,326),_ui_width(430,560))')
+s = s.replace('''hint.text="WASD / СТРЕЛКИ — ДВИЖЕНИЕ · SPACE — РЫВОК · Q — ANIMA BURST\nANDROID: ВИРТУАЛЬНЫЕ СТИКИ И КНОПКИ"''','''hint.text="WASD / СТРЕЛКИ — ДВИЖЕНИЕ · SPACE — РЫВОК · Q — ANIMA BURST\nANDROID: ЛЕВЫЙ СТИК · DASH · ANIMA"''')
 main.write_text(s)
 
-# --- Mobile controls ---
-mobile = root / "scripts/mobile_controls.gd"
-m = mobile.read_text().replace('radius := 62.0', 'radius := 58.0')
-m = m.replace('''        center=Vector2(95,size.y-95)
-        dash_rect=Rect2(size.x-155,size.y-155,110,110)
-        skill_rect=Rect2(size.x-275,size.y-130,92,92)
-        pause_rect=Rect2(size.x-72,18,52,52)''',
-'''        var portrait := size.y > size.x
-        if portrait:
-            center=Vector2(76,size.y-104)
-            dash_rect=Rect2(size.x-122,size.y-150,100,100)
-            skill_rect=Rect2(size.x-122,size.y-270,100,100)
-            pause_rect=Rect2(size.x-66,18,48,48)
-        else:
-            center=Vector2(88,size.y-88)
-            dash_rect=Rect2(size.x-138,size.y-138,104,104)
-            skill_rect=Rect2(size.x-258,size.y-122,94,94)
-            pause_rect=Rect2(size.x-70,18,50,50)''')
-m = m.replace('event.position.x < size.x*.45', 'event.position.x < size.x*.48')
-mobile.write_text(m)
+# Combat camera: strict top-down orthographic view, tuned for landscape.
+player = root/"scripts/player.gd"
+s = player.read_text()
+old='''    camera=Camera3D.new(); camera.name="CombatCamera"; get_tree().current_scene.add_child(camera)
+    camera.global_position=global_position+Vector3(0,11.7,11.7); camera.rotation_degrees=Vector3(-43,0,0); camera.fov=51.5; camera.current=true'''
+new='''    camera=Camera3D.new(); camera.name="CombatCamera"; get_tree().current_scene.add_child(camera)
+    camera.projection=Camera3D.PROJECTION_ORTHOGONAL
+    camera.size=11.5
+    camera.global_position=global_position+Vector3(0,18.0,0)
+    camera.rotation_degrees=Vector3(-90,0,0)
+    camera.current=true'''
+s=s.replace(old,new)
+start=s.index("func _update_camera(delta: float) -> void:")
+end=s.index("\nfunc try_dash()", start)
+newfunc='''func _update_camera(delta: float) -> void:
+    if not is_instance_valid(camera):
+        return
+    camera_shake = max(0.0,camera_shake-delta*2.35)
+    var desired_pos := global_position + Vector3(0,18.0,0)
+    camera_velocity += (desired_pos-camera.global_position) * 14.0 * delta
+    camera_velocity *= exp(-9.0*delta)
+    camera.global_position += camera_velocity * delta
+    camera.projection=Camera3D.PROJECTION_ORTHOGONAL
+    camera.size=lerp(camera.size,11.5,1.0-exp(-6.0*delta))
+    camera.rotation_degrees=Vector3(-90,0,0)
+    if camera_shake > 0.0:
+        camera.global_position += Vector3(randf_range(-1,1),0,randf_range(-1,1))*camera_shake
+'''
+s=s[:start]+newfunc+s[end:]
+player.write_text(s)
 
-# --- Pixel shader ---
-shader = root / "shaders/pixel_post.gdshader"
-shader.write_text('''shader_type canvas_item;
+# Cleaner environment density on Android; retain depth without visual overload.
+world = root/"scripts/world_builder.gd"
+w = world.read_text()
+w = w.replace('var count:=360 if OS.get_name()!="Android" else 170','var count:=220 if OS.get_name()!="Android" else 90')
+w = w.replace('motes.amount=90','motes.amount=40')
+w = w.replace('weather.amount=54 if map_id!="desert" else 34','weather.amount=26 if map_id!="desert" else 18')
+w = w.replace('for i in range(96):','for i in range(56):')
+world.write_text(w)
 
-uniform float pixel_size : hint_range(1.0, 8.0) = 3.0;
-uniform float palette_steps : hint_range(2.0, 16.0) = 7.0;
-uniform float contrast : hint_range(0.8, 1.5) = 1.10;
-uniform float vignette_strength : hint_range(0.0, 1.0) = 0.22;
-uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_nearest;
-
-void fragment() {
-    vec2 tex_size = vec2(textureSize(screen_texture, 0));
-    vec2 cell = max(vec2(1.0), vec2(pixel_size));
-    vec2 uv = floor(SCREEN_UV * tex_size / cell) * cell / tex_size;
-    uv += (cell * 0.5) / tex_size;
-    vec4 tex = texture(screen_texture, uv);
-    vec3 col = (tex.rgb - 0.5) * contrast + 0.5;
-    col = floor(clamp(col, vec3(0.0), vec3(1.0)) * palette_steps + 0.5) / palette_steps;
-    vec2 vig_uv = SCREEN_UV * 2.0 - 1.0;
-    float vignette = 1.0 - smoothstep(0.35, 1.15, dot(vig_uv, vig_uv)) * vignette_strength;
-    col *= vignette;
-    float dither = (fract(sin(dot(floor(SCREEN_UV * tex_size), vec2(12.9898,78.233))) * 43758.5453) - 0.5) * 0.018;
-    col = clamp(col + dither, vec3(0.0), vec3(1.0));
-    COLOR = vec4(col, tex.a);
-}
+# Disable old pixel post-process shader completely; keep the file for compatibility.
+(root/"shaders/pixel_post.gdshader").write_text('''shader_type canvas_item;
+// Retained for backwards compatibility. Top Down build intentionally does not install this filter.
+void fragment(){ COLOR = texture(TEXTURE, UV); }
 ''')
 
-(root / "icon.svg").write_text('''<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#080d18"/><path d="M256 72 298 166 400 178 324 246 344 348 256 300 168 348 188 246 112 178 214 166Z" fill="#ff5b9a"/><path d="M256 112 274 190 350 204 292 254 306 326 256 286 206 326 220 254 162 204 238 190Z" fill="#69e8ff"/><rect x="92" y="400" width="328" height="18" rx="9" fill="#69e8ff" opacity=".8"/></svg>''')
+# Updated launcher icon.
+(root/"icon.svg").write_text('''<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#07111f"/><circle cx="256" cy="250" r="154" fill="#102c45" stroke="#69e8ff" stroke-width="12"/><path d="M256 112l35 82 89 8-68 57 21 87-77-47-77 47 21-87-68-57 89-8z" fill="#ff5b9a"/><circle cx="256" cy="250" r="34" fill="#69e8ff"/><path d="M104 416h304" stroke="#69e8ff" stroke-width="18" stroke-linecap="round" opacity=".8"/></svg>''')
 
-(root / "QA_REPORT_PIXEL_PORTRAIT_v1.1.txt").write_text('''ANIMA SURVIVORS: REBORN — PIXEL PORTRAIT v1.1 STATIC QA
-========================================================
-- 12 PNG textures: 512x512; albedo/normal RGB, roughness L.
-- 4 generated GLB props: parse-valid; 15,020 total triangles.
-- 12 WAV files: parse-valid PCM, 32 kHz; music stereo and SFX mono.
-- External character/monster slots are optional and documented with provenance.
-- No unlicensed marketplace assets are claimed as bundled.
-- Native Android portrait orientation enabled.
-- Logical canvas 360x640; desktop preview 720x1280.
-- Portrait-safe menu/modal widths and mobile control placement added.
-- Android frame pacing/Swappy enabled.
-- Pixel post-process upgraded with controlled vignette and subtle dithering.
-- Vector launcher icon added.
-NOTE: Device FPS/touch/thermal QA still requires installing the exported APK on real phones.
+(root/"QA_REPORT_TOPDOWN_LANDSCAPE_v1.2.txt").write_text('''ANIMA SURVIVORS: REBORN — TOP-DOWN LANDSCAPE v1.2
+================================================
+CHANGES
+- Android orientation locked to landscape.
+- Logical viewport 960x540 with 1280x720 desktop override.
+- Combat camera changed to orthographic, exact top-down (90 degrees).
+- Camera follows player smoothly with no perspective tilt/FOV pumping.
+- Full-screen pixel quantization/post-process removed: 3D colors and silhouettes stay clean.
+- Texture filtering restored to linear for cleaner 3D presentation.
+- Android grass/particles/weather density reduced to remove visual clutter.
+- Mobile controls remain landscape-first and use left stick + right action buttons.
+- Launcher icon updated.
+
+NOTE
+Runtime/device QA requires an exported APK on a real Android device.
 ''')
