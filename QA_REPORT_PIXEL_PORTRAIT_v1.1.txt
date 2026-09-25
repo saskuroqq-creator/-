@@ -1,0 +1,14 @@
+ANIMA SURVIVORS: REBORN — PIXEL PORTRAIT v1.1 STATIC QA
+========================================================
+- 12 PNG textures: 512x512; albedo/normal RGB, roughness L.
+- 4 generated GLB props: parse-valid; 15,020 total triangles.
+- 12 WAV files: parse-valid PCM, 32 kHz; music stereo and SFX mono.
+- External character/monster slots are optional and documented with provenance.
+- No unlicensed marketplace assets are claimed as bundled.
+- Native Android portrait orientation enabled.
+- Logical canvas 360x640; desktop preview 720x1280.
+- Portrait-safe menu/modal widths and mobile control placement added.
+- Android frame pacing/Swappy enabled.
+- Pixel post-process upgraded with controlled vignette and subtle dithering.
+- Vector launcher icon added.
+NOTE: Device FPS/touch/thermal QA still requires installing the exported APK on real phones.
