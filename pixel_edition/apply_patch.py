@@ -17,8 +17,7 @@ for a,b in repls.items():
     p=p.replace(a,b)
 
 if "window/handheld/orientation=" not in p:
-    p=p.replace('window/stretch/aspect="keep"','window/stretch/aspect="keep"
-window/handheld/orientation=0')
+    p=p.replace('window/stretch/aspect="keep"','window/stretch/aspect="keep"\nwindow/handheld/orientation=0')
 
 # Galaxy A57 landscape profile.
 p=p.replace("window/size/viewport_width=960","window/size/viewport_width=1170")
