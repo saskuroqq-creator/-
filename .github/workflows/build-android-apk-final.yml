@@ -1,4 +1,4 @@
-name: Build Android APK - Pixel Portrait v1.1
+name: Build Android APK - Top Down Landscape v1.2
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Prepare Pixel Portrait v1.1 project
+      - name: Prepare Top Down Landscape v1.2 project
         run: |
           set -euo pipefail
           mkdir -p project
@@ -87,8 +87,8 @@ jobs:
           mkdir -p release
           APK="$HOME/.local/share/godot/builds/Android/AnimaSurvivorsReborn.apk"
           test -s "$APK"
-          cp "$APK" release/AnimaSurvivorsReborn-PixelPortrait-v1.1-debug.apk
-          sha256sum release/AnimaSurvivorsReborn-PixelPortrait-v1.1-debug.apk > release/AnimaSurvivorsReborn-PixelPortrait-v1.1-debug.apk.sha256
+          cp "$APK" release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk
+          sha256sum release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk > release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk.sha256
           ls -lh release/*
           file release/AnimaSurvivorsReborn-PixelPortrait-v1.1-debug.apk
 
