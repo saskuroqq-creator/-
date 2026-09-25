@@ -30,6 +30,9 @@ jobs:
           unzip -q "$ARCHIVE" -d project
           PROJECT_DIR="$(find project -name project.godot -type f -print -quit | xargs -r dirname)"
           test -n "$PROJECT_DIR"
+          sed -i 's/var previous_hero:=hero_id/var previous_hero: String = hero_id/' "$PROJECT_DIR/scripts/main.gd"
+          printf '\n[preset.0.options]\n\n' >> "$PROJECT_DIR/export_presets.cfg"
+          sed -i '/\[preset.1.options\]/a texture_format/etc2_astc=true\ntexture_format/s3tc_bptc=false' "$PROJECT_DIR/export_presets.cfg"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
           echo "Godot project: $PROJECT_DIR"
 
