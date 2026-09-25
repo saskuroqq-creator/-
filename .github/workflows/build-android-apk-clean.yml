@@ -91,3 +91,5 @@ jobs:
           path: release/*
           if-no-files-found: error
           retention-days: 30
+
+# verified gray-screen fix build 2026-09-25
