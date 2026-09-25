@@ -14,6 +14,8 @@ repls = {
     "config/name=\"Anima Survivors: Reborn — Asset Fusion\"": "config/name=\"Anima Survivors: Reborn — Top Down\"",
     "textures/default_filters/use_nearest_mipmap_filter=true": "textures/default_filters/use_nearest_mipmap_filter=false",
     "textures/canvas_textures/default_texture_filter=0": "textures/canvas_textures/default_texture_filter=1",
+    'renderer/rendering_method="forward_plus"': 'renderer/rendering_method="gl_compatibility"',
+    'renderer/rendering_method.mobile="mobile"': 'renderer/rendering_method.mobile="gl_compatibility"',
 }
 for a,b in repls.items(): p=p.replace(a,b)
 if "window/handheld/orientation=" not in p:
@@ -25,6 +27,26 @@ proj.write_text(p)
 # Main UI: landscape-safe panels, remove muddy full-screen pixel filter.
 main = root/"scripts/main.gd"
 s = main.read_text()
+s = s.replace('''func _ready()->void:
+    process_mode=Node.PROCESS_MODE_ALWAYS
+    AnimaAudio.play_music()
+    rng.randomize()
+    _build_background_world()
+    _build_ui()
+    _show_main_menu()
+''','''func _ready()->void:
+    process_mode=Node.PROCESS_MODE_ALWAYS
+    AnimaAudio.play_music()
+    rng.randomize()
+    # Build UI first so a world/render initialization issue never leaves a blank screen.
+    _build_ui()
+    _show_main_menu()
+    call_deferred("_finish_boot")
+
+func _finish_boot()->void:
+    _build_background_world()
+    _build_menu_showcase()
+''')
 s = s.replace("REBORN · PIXEL EDITION · SURVIVAL ACTION","REBORN · TOP-DOWN SURVIVAL ACTION")
 s = s.replace('    _install_pixel_filter()\n','')
 s = s.replace('panel.custom_minimum_size=Vector2(_ui_width(580,326),_ui_width(610,560))','panel.custom_minimum_size=Vector2(_ui_width(600,326),_ui_width(500,560))')
