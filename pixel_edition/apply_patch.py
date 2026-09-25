@@ -16,6 +16,7 @@ repls = {
     "textures/canvas_textures/default_texture_filter=0": "textures/canvas_textures/default_texture_filter=1",
     'renderer/rendering_method="forward_plus"': 'renderer/rendering_method="gl_compatibility"',
     'renderer/rendering_method.mobile="mobile"': 'renderer/rendering_method.mobile="gl_compatibility"',
+    'config/features=PackedStringArray("4.7", "Forward Plus")': 'config/features=PackedStringArray("4.7", "GL Compatibility")',
 }
 for a,b in repls.items(): p=p.replace(a,b)
 if "window/handheld/orientation=" not in p:
@@ -36,16 +37,10 @@ s = s.replace('''func _ready()->void:
     _show_main_menu()
 ''','''func _ready()->void:
     process_mode=Node.PROCESS_MODE_ALWAYS
-    AnimaAudio.play_music()
     rng.randomize()
-    # Build UI first so a world/render initialization issue never leaves a blank screen.
+    # Android-safe bootstrap: show the 2D menu before creating any 3D world.
     _build_ui()
     _show_main_menu()
-    call_deferred("_finish_boot")
-
-func _finish_boot()->void:
-    _build_background_world()
-    _build_menu_showcase()
 ''')
 s = s.replace("REBORN · PIXEL EDITION · SURVIVAL ACTION","REBORN · TOP-DOWN SURVIVAL ACTION")
 s = s.replace('    _install_pixel_filter()\n','')
@@ -130,6 +125,26 @@ p = p.replace("window/size/viewport_height=540", "window/size/viewport_height=54
 p = p.replace("window/size/window_width_override=1280", "window/size/window_width_override=1560")
 p = p.replace("window/size/window_height_override=720", "window/size/window_height_override=720")
 p = p.replace('config/name="Anima Survivors: Reborn — Top Down"', 'config/name="Anima Survivors: Reborn — Galaxy A57"')
+# Hard-normalize Android-safe display/renderer settings after all earlier replacements.
+lines=p.splitlines()
+for i,line in enumerate(lines):
+    if line.startswith("config/features="):
+        lines[i]='config/features=PackedStringArray("4.7", "GL Compatibility")'
+    elif line.startswith("window/size/viewport_width="):
+        lines[i]="window/size/viewport_width=1170"
+    elif line.startswith("window/size/viewport_height="):
+        lines[i]="window/size/viewport_height=540"
+    elif line.startswith("window/size/window_width_override="):
+        lines[i]="window/size/window_width_override=1560"
+    elif line.startswith("window/size/window_height_override="):
+        lines[i]="window/size/window_height_override=720"
+    elif line.startswith("window/handheld/orientation="):
+        lines[i]="window/handheld/orientation=0"
+    elif line.startswith("renderer/rendering_method="):
+        lines[i]='renderer/rendering_method="gl_compatibility"'
+    elif line.startswith("renderer/rendering_method.mobile="):
+        lines[i]='renderer/rendering_method.mobile="gl_compatibility"'
+p="\n".join(lines)+"\n"
 proj.write_text(p)
 
 # Rebuild the main menu as a landscape two-column layout.
@@ -139,7 +154,7 @@ start = s.index("func _show_main_menu()->void:")
 end = s.index("\nfunc _refresh_selection()->void:", start)
 menu = '''func _show_main_menu()->void:
     running=false
-    _build_menu_showcase()
+    # Do not create any 3D showcase during boot; it is initialized only when a run starts.
     for c in ui.get_children():
         if c is MarginContainer:
             c.visible=false
