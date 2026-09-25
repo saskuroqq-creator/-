@@ -45,7 +45,7 @@ new='''    camera=Camera3D.new(); camera.name="CombatCamera"; get_tree().current
     camera.current=true'''
 s=s.replace(old,new)
 start=s.index("func _update_camera(delta: float) -> void:")
-end=s.index("\nfunc try_dash()", start)
+end=s.index("\nfunc take_hit", start)
 newfunc='''func _update_camera(delta: float) -> void:
     if not is_instance_valid(camera):
         return
