@@ -6,3 +6,5 @@ Android build via GitHub Actions.
 Android build workflow patched for Godot 4.7.2 export compatibility.
 
 Build config refreshed.
+
+Workflow repaired.
