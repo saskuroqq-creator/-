@@ -79,7 +79,7 @@ jobs:
         run: |
           set -e
           mkdir -p release
-          APK="$(find . -type f -name '*.apk' | head -n 1)"
+          APK="/home/runner/.local/share/godot/builds/Android/AnimaSurvivorsReborn.apk"
           test -n "$APK"
           cp "$APK" release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk
           sha256sum release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk > release/AnimaSurvivorsReborn-TopDown-Landscape-v1.2-debug.apk.sha256
