@@ -17,7 +17,10 @@ jobs:
       - name: Find archive
         run: |
           set -e
-          ARCHIVE="$(find . -maxdepth 1 -type f -iname '*.zip' | head -n 1)"
+          ARCHIVE="$(find . -maxdepth 1 -type f -iname 'Anima_Survivors_Reborn_Godot_v0.8.1_ANDROID_READY (1).zip' -print -quit)"
+          if [ -z "$ARCHIVE" ]; then
+            ARCHIVE="$(find . -maxdepth 1 -type f -iname '*.zip' -print -quit)"
+          fi
           test -n "$ARCHIVE"
           echo "ARCHIVE=$ARCHIVE" >> "$GITHUB_ENV"
 
