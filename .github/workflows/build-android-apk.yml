@@ -42,13 +42,16 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'platform-tools,build-tools;35.0.0,platforms;android-35'
+          packages: >
+            platform-tools
+            platforms;android-35
+            build-tools;35.0.0
 
       - name: Create debug keystore
         shell: bash
         run: |
           mkdir -p "$HOME/.android"
-          keytool -genkeypair -v             -keystore "$HOME/.android/debug.keystore"             -storepass android             -alias androiddebugkey             -keypass android             -dname "CN=Android Debug,O=Anima Survivors,C=UZ"             -keyalg RSA -keysize 2048 -validity 10000
+          keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Anima Survivors,C=UZ" -keyalg RSA -keysize 2048 -validity 10000
 
       - name: Export Godot project
         uses: firebelley/godot-export@v8.0.0
